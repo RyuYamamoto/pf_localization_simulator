@@ -22,6 +22,8 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
 {
   latest_stamp_ = ros::Time::now();
 
+  particle_filter_ptr_->setBasePose(msg.pose);
+
   publishParticles();
 }
 
