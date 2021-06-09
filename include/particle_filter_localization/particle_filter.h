@@ -9,7 +9,10 @@ struct Particle
 class ParticleFilter
 {
 public:
-  ParticleFilter(const int particle_num) : particle_num_(particle_num) { particle_.resize(particle_num); }
+  ParticleFilter(const int particle_num) : particle_num_(particle_num)
+  {
+    particle_.resize(particle_num);
+  }
   ~ParticleFilter() = default;
 
   std::size_t getParticleSize() { return particle_.size(); }
@@ -17,9 +20,7 @@ public:
 
   void setBasePose(const geometry_msgs::Pose pose)
   {
-    for(std::size_t idx=0;idx<getParticleSize();++idx) {
-      particle_.at(idx).pose = pose;
-    }
+    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) particle_.at(idx).pose = pose;
   }
 
 private:

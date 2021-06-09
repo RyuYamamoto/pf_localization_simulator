@@ -7,13 +7,15 @@ ParticleFilterLocalization::ParticleFilterLocalization()
 
   particle_filter_ptr_ = boost::make_shared<ParticleFilter>(particle_num_);
 
-  initialpose_subscriber_ = pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
+  initialpose_subscriber_ =
+    pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
   pose_subscriber_ =
     pnh_.subscribe("/nav_sim/current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
 }
 
-void ParticleFilterLocalization::initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped & msg)
+void ParticleFilterLocalization::initialposeCallback(
+  const geometry_msgs::PoseWithCovarianceStamped & msg)
 {
   particle_filter_ptr_->setBasePose(msg.pose.pose);
 }
@@ -34,7 +36,7 @@ void ParticleFilterLocalization::publishParticles()
   particle_array.header.stamp = latest_stamp_;
   particle_array.header.frame_id = frame_id_;
 
-  for(std::size_t idx=0;idx<particle_filter_ptr_->getParticleSize();++idx) {
+  for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
     const auto particle = particle_filter_ptr_->getParticle(idx);
 
     particle_array.poses.push_back(particle.pose);
