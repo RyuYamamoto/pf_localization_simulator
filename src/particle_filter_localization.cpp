@@ -3,14 +3,14 @@
 ParticleFilterLocalization::ParticleFilterLocalization()
 {
   pnh_.param<int>("particle_num", particle_num_, 100);
-  pnh_.param<std::string>("frame_id", frame_id_, "world");
+  pnh_.param<std::string>("frame_id", frame_id_, "map");
 
   particle_filter_ptr_ = boost::make_shared<ParticleFilter>(particle_num_);
 
   initialpose_subscriber_ =
     pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
   pose_subscriber_ =
-    pnh_.subscribe("/nav_sim/current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
+    pnh_.subscribe("current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
 }
 
