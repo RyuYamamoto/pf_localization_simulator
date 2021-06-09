@@ -22,5 +22,5 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(particle_filter_localization_node src/particle_filter_localization_core.cpp src/particle_filter_localization_node.cpp)
+add_executable(particle_filter_localization_node src/particle_filter_localization.cpp src/particle_filter_localization_node.cpp)
 target_link_libraries(particle_filter_localization_node ${catkin_LIBRARIES})
