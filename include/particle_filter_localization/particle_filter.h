@@ -23,6 +23,8 @@ public:
     for (std::size_t idx = 0; idx < getParticleSize(); ++idx) particle_.at(idx).pose = pose;
   }
 
+  void setParticleNum(const int particle_num) { particle_num_ = particle_num; }
+
 private:
   int particle_num_;
 
