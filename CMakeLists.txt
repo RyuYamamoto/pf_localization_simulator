@@ -10,6 +10,9 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
 )
 
+
+find_package(Eigen3 REQUIRED)
+
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES particle_filter_localization
@@ -20,6 +23,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_executable(particle_filter_localization_node src/particle_filter_localization.cpp src/particle_filter_localization_node.cpp)

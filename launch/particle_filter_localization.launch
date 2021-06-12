@@ -8,4 +8,8 @@
     <param name="frame_id" value="$(arg frame_id)"/>
     <remap from="~current_pose" to="$(arg current_pose_topic)"/>
   </node>
+
+  <include file="$(find nav_sim)/launch/nav_sim_bringup.launch">
+    <arg name="rviz_config" value="$(find particle_filter_localization)/rviz/particle_filter_localization.rviz"/>
+  </include>
 </launch>

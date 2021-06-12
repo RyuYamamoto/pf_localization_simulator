@@ -1,7 +1,9 @@
+#include <ros/ros.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <ros/ros.h>
+
+#include <Eigen/Core>
 
 #include <particle_filter_localization/particle_filter.h>
 
@@ -30,4 +32,11 @@ private:
 
   int particle_num_;
   std::string frame_id_;
+
+  double sigma_vv_;
+  double sigma_vw_;
+  double sigma_wv_;
+  double sigma_ww_;
+  Eigen::Vector4d motion_noise_std_vec_;
+  Eigen::Matrix4d motion_noise_covariance_;
 };
