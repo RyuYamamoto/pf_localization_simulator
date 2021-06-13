@@ -15,13 +15,15 @@ ParticleFilterLocalization::ParticleFilterLocalization()
     pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
   pose_subscriber_ =
     pnh_.subscribe("current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
+  twist_subscriber_ = pnh_.subscribe("/nav_sim/twist", 1, &ParticleFilterLocalization::twistCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
 
   motion_noise_std_vec_(0) = sigma_vv_ * sigma_vv_;
   motion_noise_std_vec_(1) = sigma_vw_ * sigma_vw_;
   motion_noise_std_vec_(2) = sigma_wv_ * sigma_wv_;
   motion_noise_std_vec_(3) = sigma_ww_ * sigma_ww_;
-  motion_noise_covariance_ = motion_noise_std_vec_.asDiagonal();
+
+  latest_stamp_ = ros::Time::now();
 }
 
 void ParticleFilterLocalization::initialposeCallback(
@@ -30,20 +32,37 @@ void ParticleFilterLocalization::initialposeCallback(
   particle_filter_ptr_->setBasePose(msg.pose.pose);
 }
 
+void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped & msg)
+{
+  twist_ = msg;
+}
+
+void ParticleFilterLocalization::update(const double velocity, const double omega, const double dt)
+{
+  particle_filter_ptr_->update(velocity, omega, dt, motion_noise_std_vec_);
+}
+
 void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped & msg)
 {
-  latest_stamp_ = ros::Time::now();
+  current_stamp_ = ros::Time::now();
 
+  // set current position
   particle_filter_ptr_->setBasePose(msg.pose);
 
+  // update particle pose
+  update(twist_.twist.linear.x, twist_.twist.angular.z, (current_stamp_-latest_stamp_).toSec());
+
+  // publish particles for visualization
   publishParticles();
+
+  latest_stamp_ = current_stamp_;
 }
 
 void ParticleFilterLocalization::publishParticles()
 {
   geometry_msgs::PoseArray particle_array;
 
-  particle_array.header.stamp = latest_stamp_;
+  particle_array.header.stamp = current_stamp_;
   particle_array.header.frame_id = frame_id_;
 
   for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
