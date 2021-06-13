@@ -2,11 +2,13 @@
   <arg name="particle_num" default="100"/>
   <arg name="frame_id" default="world"/>
   <arg name="current_pose_topic" default="/nav_sim/current_pose"/>
+  <arg name="twist_topic" default="/nav_sim/twist"/>
 
   <node pkg="particle_filter_localization" type="particle_filter_localization_node" name="particle_filter_localization">
     <param name="particle_num" value="$(arg particle_num)"/>
     <param name="frame_id" value="$(arg frame_id)"/>
     <remap from="~current_pose" to="$(arg current_pose_topic)"/>
+    <remap from="~twist" to="$(arg twist_topic)"/>
   </node>
 
   <include file="$(find nav_sim)/launch/nav_sim_bringup.launch">

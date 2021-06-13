@@ -16,7 +16,7 @@ ParticleFilterLocalization::ParticleFilterLocalization()
     pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
   pose_subscriber_ =
     pnh_.subscribe("current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
-  twist_subscriber_ = pnh_.subscribe("/nav_sim/twist", 1, &ParticleFilterLocalization::twistCallback, this);
+  twist_subscriber_ = pnh_.subscribe("twist", 1, &ParticleFilterLocalization::twistCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
 
   motion_noise_std_vec_(0) = sigma_vv_ * sigma_vv_;
