@@ -1,3 +1,6 @@
+#ifndef _PARTICLE_FILTER_LOCALIZATION_H_
+#define _PARTICLE_FILTER_LOCALIZATION_H_
+
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PoseArray.h>
@@ -49,3 +52,5 @@ private:
   double sigma_ww_;
   Eigen::Vector4d motion_noise_std_vec_;
 };
+
+#endif
