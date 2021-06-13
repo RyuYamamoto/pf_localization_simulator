@@ -8,11 +8,7 @@
 
 struct Particle
 {
-  geometry_msgs::Pose pose;
   Eigen::VectorXd vec;
-  double x;
-  double y;
-  double theta;
 };
 
 class ParticleFilter
