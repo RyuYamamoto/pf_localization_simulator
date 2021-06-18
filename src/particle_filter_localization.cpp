@@ -51,12 +51,13 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
   particle_filter_ptr_->setBasePose(utils::convertToVector(msg.pose));
 
   // update particle pose
-  update(twist_.twist.linear.x, twist_.twist.angular.z, (current_stamp_-latest_stamp_).toSec());
+  update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, (current_stamp_-latest_stamp_).toSec());
 
   // publish particles for visualization
   publishParticles();
 
   latest_stamp_ = current_stamp_;
+  prev_twist_ = twist_;
 }
 
 void ParticleFilterLocalization::publishParticles()

@@ -25,25 +25,42 @@ public:
 
   void setBasePose(const Eigen::VectorXd vec)
   {
-    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
-      particle_.at(idx).vec = vec;
-    }
+    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) { particle_.at(idx).vec = vec; }
   }
 
   void setParticleNum(const int particle_num) { particle_num_ = particle_num; }
 
-  void update(
-    const double velocity, const double omega, const double dt, const Eigen::Vector4d motion_noise)
+  Eigen::VectorXd motion(
+    const double vel, const double omega, const double dt, const Eigen::VectorXd pose)
   {
-    MultiVariateNormal multi_variate_normal(Eigen::VectorXd::Zero(motion_noise.rows()), motion_noise.asDiagonal());
+    Eigen::VectorXd diff_pose(pose.rows());
+    const double t0 = pose(2);
+
+    diff_pose(2) = omega * dt;
+    if (std::fabs(omega) < 1e-06) {
+      diff_pose(0) = vel * std::cos(t0) * dt;
+      diff_pose(1) = vel * std::sin(t0) * dt;
+    } else {
+      diff_pose(0) = (vel / omega) * (std::sin(t0 + omega * dt) - std::sin(t0));
+      diff_pose(1) = (vel / omega) * (-std::cos(t0 + omega * dt) + std::cos(t0));
+    }
+
+    return pose + diff_pose;
+  }
+
+  void update(
+    const double vel, const double omega, const double dt, const Eigen::Vector4d motion_noise)
+  {
+    MultiVariateNormal multi_variate_normal(
+      Eigen::VectorXd::Zero(motion_noise.rows()), motion_noise.asDiagonal());
     for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
       Eigen::VectorXd noise = multi_variate_normal();
-      const double noise_vel = velocity + noise(0) * std::sqrt(std::fabs(velocity)/dt) + noise(1) * std::sqrt(std::fabs(omega)/dt);
-      const double noise_omega = omega + noise(2) * std::sqrt(std::fabs(velocity)/dt) + noise(3) * std::sqrt(std::fabs(omega)/dt);
+      const double noise_vel = vel + (noise(0) * std::sqrt(std::fabs(vel) / dt) +
+                                      noise(1) * std::sqrt(std::fabs(omega) / dt));
+      const double noise_omega = omega + (noise(2) * std::sqrt(std::fabs(vel) / dt) +
+                                          noise(3) * std::sqrt(std::fabs(omega) / dt));
 
-      particle_.at(idx).vec(2) += noise_omega * dt;
-      particle_.at(idx).vec(0) += noise_vel * std::cos(particle_.at(idx).vec(2)) * dt;
-      particle_.at(idx).vec(1) += noise_vel * std::sin(particle_.at(idx).vec(2)) * dt;
+      particle_.at(idx).vec = motion(noise_vel, noise_omega, dt, particle_.at(idx).vec);
     }
   }
 

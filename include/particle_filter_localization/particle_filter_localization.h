@@ -40,6 +40,7 @@ private:
   ros::Publisher particle_publisher_;
 
   geometry_msgs::TwistStamped twist_;
+  geometry_msgs::TwistStamped prev_twist_;
 
   boost::shared_ptr<ParticleFilter> particle_filter_ptr_;
 
