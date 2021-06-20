@@ -24,14 +24,13 @@ private:
   void twistCallback(const geometry_msgs::TwistStamped & msg);
   void initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped & msg);
 
-  void publishParticles();
+  void publishParticles(const ros::Time stamp);
 
   void update(const double velocity, const double omega, const double dt);
 
   ros::NodeHandle nh_{};
   ros::NodeHandle pnh_{"~"};
 
-  ros::Time current_stamp_;
   ros::Time latest_stamp_;
 
   ros::Subscriber initialpose_subscriber_;

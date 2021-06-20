@@ -45,8 +45,8 @@ void ParticleFilterLocalization::update(const double velocity, const double omeg
 
 void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped & msg)
 {
-  current_stamp_ = ros::Time::now();
-  const double dt = (current_stamp_ - latest_stamp_).toSec();
+  const ros::Time current_stamp = ros::Time::now();
+  const double dt = (current_stamp - latest_stamp_).toSec();
 
   // set current position
   particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose));
@@ -55,17 +55,17 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
   update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt);
 
   // publish particles for visualization
-  publishParticles();
+  publishParticles(current_stamp);
 
-  latest_stamp_ = current_stamp_;
+  latest_stamp_ = current_stamp;
   prev_twist_ = twist_;
 }
 
-void ParticleFilterLocalization::publishParticles()
+void ParticleFilterLocalization::publishParticles(const ros::Time stamp)
 {
   geometry_msgs::PoseArray particle_array;
 
-  particle_array.header.stamp = current_stamp_;
+  particle_array.header.stamp = stamp;
   particle_array.header.frame_id = frame_id_;
 
   for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
