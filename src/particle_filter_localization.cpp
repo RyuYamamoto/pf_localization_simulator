@@ -46,12 +46,13 @@ void ParticleFilterLocalization::update(const double velocity, const double omeg
 void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped & msg)
 {
   current_stamp_ = ros::Time::now();
+  const double dt = (current_stamp_ - latest_stamp_).toSec();
 
   // set current position
   particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose));
 
   // update particle pose
-  update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, (current_stamp_-latest_stamp_).toSec());
+  update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt);
 
   // publish particles for visualization
   publishParticles();
