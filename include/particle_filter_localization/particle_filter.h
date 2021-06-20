@@ -24,9 +24,12 @@ public:
   std::size_t getParticleSize() { return particle_.size(); }
   Particle getParticle(std::size_t idx) { return particle_.at(idx); }
 
-  void setBasePose(const Eigen::VectorXd vec)
+  void initParticles(const Eigen::VectorXd vec)
   {
-    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) { particle_.at(idx).vec = vec; }
+    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
+      particle_.at(idx).vec = vec;
+      particle_.at(idx).weight = 1.0 / particle_.size();
+    }
   }
 
   void setParticleNum(const int particle_num) { particle_num_ = particle_num; }

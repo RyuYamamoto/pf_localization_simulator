@@ -30,7 +30,7 @@ ParticleFilterLocalization::ParticleFilterLocalization()
 void ParticleFilterLocalization::initialposeCallback(
   const geometry_msgs::PoseWithCovarianceStamped & msg)
 {
-  particle_filter_ptr_->setBasePose(utils::convertToVector(msg.pose.pose));
+  particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose.pose));
 }
 
 void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped & msg)
@@ -48,7 +48,7 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
   current_stamp_ = ros::Time::now();
 
   // set current position
-  particle_filter_ptr_->setBasePose(utils::convertToVector(msg.pose));
+  particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose));
 
   // update particle pose
   update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, (current_stamp_-latest_stamp_).toSec());
