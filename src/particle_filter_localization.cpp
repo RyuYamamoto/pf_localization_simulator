@@ -24,6 +24,9 @@ ParticleFilterLocalization::ParticleFilterLocalization()
   motion_noise_std_vec_(2) = sigma_wv_ * sigma_wv_;
   motion_noise_std_vec_(3) = sigma_ww_ * sigma_ww_;
 
+  // init particles
+  particle_filter_ptr_->initParticles(Eigen::Vector3d::Zero());
+
   latest_stamp_ = ros::Time::now();
 }
 
@@ -47,9 +50,6 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
 {
   const ros::Time current_stamp = ros::Time::now();
   const double dt = (current_stamp - latest_stamp_).toSec();
-
-  // set current position
-  particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose));
 
   // update particle pose
   update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt);

@@ -41,7 +41,7 @@ public:
     const double t0 = pose(2);
 
     diff_pose(2) = omega * dt;
-    if (std::fabs(omega) < 1e-06) {
+    if (std::fabs(omega) < 1e-10) {
       diff_pose(0) = vel * std::cos(t0) * dt;
       diff_pose(1) = vel * std::sin(t0) * dt;
     } else {
@@ -59,10 +59,10 @@ public:
       Eigen::VectorXd::Zero(motion_noise.rows()), motion_noise.asDiagonal());
     for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
       Eigen::VectorXd noise = multi_variate_normal();
-      const double noise_vel = vel + (noise(0) * std::sqrt(std::fabs(vel) / dt) +
-                                      noise(1) * std::sqrt(std::fabs(omega) / dt));
-      const double noise_omega = omega + (noise(2) * std::sqrt(std::fabs(vel) / dt) +
-                                          noise(3) * std::sqrt(std::fabs(omega) / dt));
+      const double noise_vel = vel + noise(0) * std::sqrt(std::fabs(vel) / dt) + noise(1) * std::sqrt(std::fabs(omega) / dt);
+      const double noise_omega = omega + noise(2) * std::sqrt(std::fabs(vel) / dt) + noise(3) * std::sqrt(std::fabs(omega) / dt);
+
+      std::cout << "vel: " << noise_vel << " omega: " << noise_omega << std::endl;
 
       particle_.at(idx).vec = motion(noise_vel, noise_omega, dt, particle_.at(idx).vec);
     }
