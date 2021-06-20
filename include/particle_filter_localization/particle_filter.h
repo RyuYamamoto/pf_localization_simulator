@@ -9,6 +9,7 @@
 struct Particle
 {
   Eigen::VectorXd vec;
+  double weight;
 };
 
 class ParticleFilter
