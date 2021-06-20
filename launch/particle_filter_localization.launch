@@ -1,11 +1,22 @@
 <launch>
-  <arg name="particle_num" default="100"/>
   <arg name="frame_id" default="world"/>
   <arg name="current_pose_topic" default="/nav_sim/current_pose"/>
   <arg name="twist_topic" default="/nav_sim/twist"/>
 
+  <!-- mcl parameter -->
+  <arg name="particle_num" default="100"/>
+  <arg name="sigma_vv" default="0.01"/>
+  <arg name="sigma_vw" default="0.02"/>
+  <arg name="sigma_wv" default="0.03"/>
+  <arg name="sigma_ww" default="0.04"/>
+
   <node pkg="particle_filter_localization" type="particle_filter_localization_node" name="particle_filter_localization">
     <param name="particle_num" value="$(arg particle_num)"/>
+    <param name="sigma_vv" value="$(arg sigma_vv)"/>
+    <param name="sigma_vw" value="$(arg sigma_vw)"/>
+    <param name="sigma_wv" value="$(arg sigma_wv)"/>
+    <param name="sigma_ww" value="$(arg sigma_ww)"/>
+
     <param name="frame_id" value="$(arg frame_id)"/>
     <remap from="~current_pose" to="$(arg current_pose_topic)"/>
     <remap from="~twist" to="$(arg twist_topic)"/>
