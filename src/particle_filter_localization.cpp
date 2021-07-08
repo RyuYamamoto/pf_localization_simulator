@@ -17,6 +17,8 @@ ParticleFilterLocalization::ParticleFilterLocalization()
   pose_subscriber_ =
     pnh_.subscribe("current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
   twist_subscriber_ = pnh_.subscribe("twist", 1, &ParticleFilterLocalization::twistCallback, this);
+  observation_subscriber_ =
+    pnh_.subscribe("observation", 1, &ParticleFilterLocalization::observationCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
 
   motion_noise_std_vec_(0) = sigma_vv_ * sigma_vv_;
@@ -41,11 +43,6 @@ void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped
   twist_ = msg;
 }
 
-void ParticleFilterLocalization::update(const double velocity, const double omega, const double dt)
-{
-  particle_filter_ptr_->update(velocity, omega, dt, motion_noise_std_vec_);
-}
-
 void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped & msg)
 {
   const ros::Time current_stamp = ros::Time::now();
@@ -59,6 +56,21 @@ void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped &
 
   latest_stamp_ = current_stamp;
   prev_twist_ = twist_;
+}
+
+void ParticleFilterLocalization::observationCallback(const nav_sim::LandmarkInfoArray & msg)
+{
+  observationUpdate(msg);
+}
+
+void ParticleFilterLocalization::update(const double velocity, const double omega, const double dt)
+{
+  particle_filter_ptr_->update(velocity, omega, dt, motion_noise_std_vec_);
+}
+
+void ParticleFilterLocalization::observationUpdate(const nav_sim::LandmarkInfoArray observation)
+{
+  particle_filter_ptr_->observationUpdate(observation);
 }
 
 void ParticleFilterLocalization::publishParticles(const ros::Time stamp)

@@ -4,6 +4,8 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 
+#include <nav_sim/LandmarkInfoArray.h>
+
 #include <particle_filter_localization/multi_variate_generator.h>
 
 struct Particle
@@ -67,6 +69,8 @@ public:
       particle_.at(idx).vec = motion(noise_vel, noise_omega, dt, particle_.at(idx).vec);
     }
   }
+
+  void observationUpdate(const nav_sim::LandmarkInfoArray & observation){}
 
 private:
   int particle_num_;

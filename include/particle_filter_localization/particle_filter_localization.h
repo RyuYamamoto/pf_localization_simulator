@@ -6,6 +6,7 @@
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <nav_sim/LandmarkInfoArray.h>
 
 #include <random>
 
@@ -23,11 +24,15 @@ private:
   void poseCallback(const geometry_msgs::PoseStamped & msg);
   void twistCallback(const geometry_msgs::TwistStamped & msg);
   void initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped & msg);
+  void observationCallback(const nav_sim::LandmarkInfoArray & msg);
 
   void publishParticles(const ros::Time stamp);
 
   void update(const double velocity, const double omega, const double dt);
 
+  void observationUpdate(const nav_sim::LandmarkInfoArray observation);
+
+private:
   ros::NodeHandle nh_{};
   ros::NodeHandle pnh_{"~"};
 
@@ -36,6 +41,7 @@ private:
   ros::Subscriber initialpose_subscriber_;
   ros::Subscriber pose_subscriber_;
   ros::Subscriber twist_subscriber_;
+  ros::Subscriber observation_subscriber_;
   ros::Publisher particle_publisher_;
 
   geometry_msgs::TwistStamped twist_;
