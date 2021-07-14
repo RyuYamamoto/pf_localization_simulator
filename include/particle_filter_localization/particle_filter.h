@@ -64,8 +64,6 @@ public:
       const double noise_vel = vel + noise(0) * std::sqrt(std::fabs(vel) / dt) + noise(1) * std::sqrt(std::fabs(omega) / dt);
       const double noise_omega = omega + noise(2) * std::sqrt(std::fabs(vel) / dt) + noise(3) * std::sqrt(std::fabs(omega) / dt);
 
-      std::cout << "vel: " << noise_vel << " omega: " << noise_omega << std::endl;
-
       particle_.at(idx).vec = motion(noise_vel, noise_omega, dt, particle_.at(idx).vec);
     }
   }
