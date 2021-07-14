@@ -7,7 +7,7 @@ class MultiVariateNormal
 {
 public:
   MultiVariateNormal(const Eigen::VectorXd mean, const Eigen::MatrixXd covariance)
-    : mean_(mean), covariance_(covariance)
+  : mean_(mean), covariance_(covariance)
   {
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigen_solver(covariance_);
     transform_ = eigen_solver.eigenvectors() * eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
@@ -18,10 +18,11 @@ public:
     static std::mt19937 engine(seed());
     static std::normal_distribution<> dist;
 
-    return mean_ + transform_ * Eigen::VectorXd{mean_.size()}.unaryExpr([&](auto x) { return dist(engine); });
+    return mean_ + transform_ *
+                     Eigen::VectorXd{mean_.size()}.unaryExpr([&](auto x) { return dist(engine); });
   }
-  void setMean(const Eigen::VectorXd mean){mean_ = mean;}
-  void setCovariance(const Eigen::MatrixXd covariance){covariance_ = covariance;}
+  void setMean(const Eigen::VectorXd mean) { mean_ = mean; }
+  void setCovariance(const Eigen::MatrixXd covariance) { covariance_ = covariance; }
 
 private:
   Eigen::VectorXd mean_;

@@ -61,14 +61,16 @@ public:
       Eigen::VectorXd::Zero(motion_noise.rows()), motion_noise.asDiagonal());
     for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
       Eigen::VectorXd noise = multi_variate_normal();
-      const double noise_vel = vel + noise(0) * std::sqrt(std::fabs(vel) / dt) + noise(1) * std::sqrt(std::fabs(omega) / dt);
-      const double noise_omega = omega + noise(2) * std::sqrt(std::fabs(vel) / dt) + noise(3) * std::sqrt(std::fabs(omega) / dt);
+      const double noise_vel = vel + noise(0) * std::sqrt(std::fabs(vel) / dt) +
+                               noise(1) * std::sqrt(std::fabs(omega) / dt);
+      const double noise_omega = omega + noise(2) * std::sqrt(std::fabs(vel) / dt) +
+                                 noise(3) * std::sqrt(std::fabs(omega) / dt);
 
       particle_.at(idx).vec = motion(noise_vel, noise_omega, dt, particle_.at(idx).vec);
     }
   }
 
-  void observationUpdate(const nav_sim::LandmarkInfoArray & observation){}
+  void observationUpdate(const nav_sim::LandmarkInfoArray & observation) {}
 
 private:
   int particle_num_;

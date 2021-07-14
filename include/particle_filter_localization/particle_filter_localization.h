@@ -1,12 +1,12 @@
 #ifndef _PARTICLE_FILTER_LOCALIZATION_H_
 #define _PARTICLE_FILTER_LOCALIZATION_H_
 
-#include <ros/ros.h>
-#include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <nav_sim/LandmarkInfoArray.h>
+#include <ros/ros.h>
 
 #include <random>
 
