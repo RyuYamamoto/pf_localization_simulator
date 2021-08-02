@@ -16,8 +16,9 @@ public:
   {
     double n = x.rows();
     double a = (x - mean_).transpose() * covariance_.inverse() * (x - mean_);
-    double b = std::pow(std::sqrt(2 * M_PI), n) * std::sqrt(covariance_.determinant());
-    return b * std::exp(-1 * a / 2.0);
+    double b = std::sqrt(std::pow(std::sqrt(2 * M_PI), n) * covariance_.determinant());
+
+    return  std::exp(-0.5 * a) / b;
   }
   Eigen::VectorXd operator()() const
   {

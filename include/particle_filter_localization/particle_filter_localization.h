@@ -12,6 +12,8 @@
 
 #include <Eigen/Core>
 
+#include <yaml-cpp/yaml.h>
+
 #include <particle_filter_localization/particle_filter.h>
 
 class ParticleFilterLocalization
@@ -32,6 +34,8 @@ private:
 
   void observationUpdate(const nav_sim::LandmarkInfoArray observation);
 
+  void parseYaml(const std::string filename);
+
 private:
   ros::NodeHandle nh_{};
   ros::NodeHandle pnh_{"~"};
@@ -51,6 +55,10 @@ private:
 
   int particle_num_;
   std::string frame_id_;
+  std::string map_file_path_;
+
+  double distance_rate_;
+  double direction_rate_;
 
   double sigma_vv_;
   double sigma_vw_;
