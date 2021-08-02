@@ -23,16 +23,13 @@ public:
   ~ParticleFilterLocalization() = default;
 
 private:
-  void poseCallback(const geometry_msgs::PoseStamped & msg);
   void twistCallback(const geometry_msgs::TwistStamped & msg);
   void initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped & msg);
   void observationCallback(const nav_sim::LandmarkInfoArray & msg);
 
+  geometry_msgs::Pose estimatedCurrentPose();
+
   void publishParticles(const ros::Time stamp);
-
-  void update(const double velocity, const double omega, const double dt);
-
-  void observationUpdate(const nav_sim::LandmarkInfoArray observation);
 
   void parseYaml(const std::string filename);
 
@@ -43,10 +40,10 @@ private:
   ros::Time latest_stamp_;
 
   ros::Subscriber initialpose_subscriber_;
-  ros::Subscriber pose_subscriber_;
   ros::Subscriber twist_subscriber_;
   ros::Subscriber observation_subscriber_;
   ros::Publisher particle_publisher_;
+  ros::Publisher estimated_pose_publisher_;
 
   geometry_msgs::TwistStamped twist_;
   geometry_msgs::TwistStamped prev_twist_;

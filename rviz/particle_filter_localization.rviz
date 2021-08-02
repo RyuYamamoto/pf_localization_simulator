@@ -6,10 +6,10 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /TF1/Frames1
         - /Odometry1/Shape1
-        - /particle1
-      Splitter Ratio: 0.5
-    Tree Height: 1083
+      Splitter Ratio: 0.5013850331306458
+    Tree Height: 363
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -58,19 +58,19 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        0:
+          Value: true
+        1:
+          Value: true
+        2:
+          Value: true
+        3:
+          Value: true
+        All Enabled: false
         base_link:
           Value: true
         ground_truth:
-          Value: true
-        landmark_1:
-          Value: true
-        landmark_2:
-          Value: true
-        landmark_3:
-          Value: true
-        landmark_4:
-          Value: true
+          Value: false
         map:
           Value: true
         world:
@@ -83,17 +83,17 @@ Visualization Manager:
       Tree:
         world:
           map:
+            0:
+              {}
+            1:
+              {}
+            2:
+              {}
+            3:
+              {}
             base_link:
               {}
             ground_truth:
-              {}
-            landmark_1:
-              {}
-            landmark_2:
-              {}
-            landmark_3:
-              {}
-            landmark_4:
               {}
       Update Interval: 0
       Value: true
@@ -164,7 +164,7 @@ Visualization Manager:
       Axes Radius: 0.10000000149011612
       Class: rviz/Pose
       Color: 204; 0; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.10000000149011612
       Head Radius: 0.10000000149011612
       Name: ground_truth
@@ -173,7 +173,7 @@ Visualization Manager:
       Shape: Arrow
       Topic: /nav_sim/ground_truth
       Unreliable: false
-      Value: true
+      Value: false
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
       Covariance:
@@ -224,6 +224,21 @@ Visualization Manager:
       Topic: /particle_filter_localization/particle
       Unreliable: false
       Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.10000000149011612
+      Head Radius: 0.10000000149011612
+      Name: estimated_pose
+      Shaft Length: 0.5
+      Shaft Radius: 0.05000000074505806
+      Shape: Arrow
+      Topic: /particle_filter_localization/pose
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -251,7 +266,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
+      Angle: 0.004999999888241291
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -261,11 +276,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 151.7863006591797
+      Scale: 228.05014038085938
       Target Frame: base_link
       Value: TopDownOrtho (rviz)
-      X: 0
-      Y: 0
+      X: 0.15209950506687164
+      Y: 0.16654330492019653
     Saved: ~
 Window Geometry:
   Displays:

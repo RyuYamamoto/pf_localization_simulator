@@ -1,6 +1,8 @@
 #ifndef _PARTICLE_FILTER_H_
 #define _PARTICLE_FILTER_H_
 
+#include <random>
+
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -30,11 +32,11 @@ public:
   std::size_t getParticleSize() { return particle_.size(); }
   Particle getParticle(std::size_t idx) { return particle_.at(idx); }
 
-  double normalizeDegree(const double degree)
+  double normalize(const double radian)
   {
-    double normalize_deg = std::fmod((degree + 180.0), 360.0) - 180.0;
-    if (normalize_deg < -180.0) normalize_deg += 360.0;
-    return normalize_deg;
+    double normalize = std::fmod((radian + M_PI), 2 * M_PI) - M_PI;
+    if (normalize < -M_PI) normalize += (2 * M_PI);
+    return normalize;
   }
 
   void setMap(std::map<std::string, std::pair<double, double>> landmarks)
@@ -51,6 +53,49 @@ public:
   }
 
   void setParticleNum(const int particle_num) { particle_num_ = particle_num; }
+
+  double getTotalWeight()
+  {
+    double sum = 0;
+    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) { sum += particle_.at(idx).weight; }
+    return sum;
+  }
+  void resampling()  // systematic sampling //TODO refactor
+  {
+    const int particle_num = getParticleSize();
+
+    double total_weight = getTotalWeight();
+    double step = total_weight / static_cast<double>(particle_num);
+
+    std::random_device seed;
+    std::default_random_engine engine(seed());
+    std::uniform_real_distribution<double> uniform(0.0, step);
+    double r = uniform(engine);
+
+    double weight_accum = 0.0;
+    std::vector<double> weight_accum_vec;
+    for (std::size_t idx = 0; idx < particle_num; ++idx) {
+      weight_accum += particle_.at(idx).weight;
+      weight_accum_vec.push_back(weight_accum);
+    }
+    if (weight_accum_vec.back() < 1e-100) {
+      for (std::size_t idx = 0; idx < particle_num; ++idx) { weight_accum_vec.at(idx) += 1e-100; }
+    }
+
+    std::size_t idx = 0;
+    std::vector<Particle> new_particles;
+    while (new_particles.size() < particle_num) {
+      if (r < weight_accum_vec.at(idx)) {
+        new_particles.push_back(particle_.at(idx));
+        r += step;
+      } else {
+        idx++;
+        if (particle_num <= idx) break;
+      }
+    }
+    particle_ = new_particles;
+    for (idx = 0; idx < particle_num; ++idx) { particle_.at(idx).weight = 1.0 / particle_num; }
+  }
 
   Eigen::VectorXd motion(
     const double vel, const double omega, const double dt, const Eigen::VectorXd pose)
@@ -86,6 +131,7 @@ public:
     }
   }
 
+  // TODO refactor
   void observationUpdate(
     const nav_sim::LandmarkInfoArray & observations, const double distance_rate,
     const double direction_rate)
@@ -96,11 +142,13 @@ public:
         observation_pos << observation.length, observation.theta;
 
         // calculate landmark distance and direction each particle pose
-        std::pair<double, double> landmark_to_map = landmarks_to_map_[std::to_string(observation.id)];
+        std::pair<double, double> landmark_to_map =
+          landmarks_to_map_[std::to_string(observation.id)];
         tf2::Transform map_to_particle;
         tf2::Transform map_to_landmark;
 
-        map_to_particle.setOrigin(tf2::Vector3(particle_.at(idx).vec(0), particle_.at(idx).vec(1), 0.0));
+        map_to_particle.setOrigin(
+          tf2::Vector3(particle_.at(idx).vec(0), particle_.at(idx).vec(1), 0.0));
         tf2::Quaternion quat;
         quat.setRPY(0.0, 0.0, particle_.at(idx).vec(2));
         map_to_particle.setRotation(tf2::Quaternion(quat.x(), quat.y(), quat.z(), quat.w()));
@@ -114,18 +162,18 @@ public:
             map_to_landmark.getOrigin().x() - map_to_particle.getOrigin().x()) -
           particle_.at(idx).vec(2);
 
-        const double landmark_direction = normalizeDegree(diff_landmark_theta * 180.0 * M_PI) * M_PI / 180.0;
-        const double landmark_distance = std::hypot(particle_to_landmark.getOrigin().x(), particle_to_landmark.getOrigin().y());
+        const double landmark_direction = normalize(diff_landmark_theta);
+        const double landmark_distance =
+          std::hypot(particle_to_landmark.getOrigin().x(), particle_to_landmark.getOrigin().y());
 
         const double distance_dev = distance_rate * landmark_distance;
         Eigen::VectorXd mean(2);
         mean << landmark_distance, landmark_direction;
-        Eigen::MatrixXd covariance(2,2);
+        Eigen::MatrixXd covariance(2, 2);
         covariance << std::pow(distance_dev, 2), 0.0, 0.0, std::pow(direction_rate, 2);
 
         MultiVariateNormal multi_variate_normal(mean, covariance);
         particle_.at(idx).weight *= multi_variate_normal.pdf(observation_pos);
-        std::cout << particle_.at(idx).weight << std::endl;
       }
     }
   }

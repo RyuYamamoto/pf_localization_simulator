@@ -1,6 +1,5 @@
 <launch>
   <arg name="frame_id" default="world"/>
-  <arg name="current_pose_topic" default="/nav_sim/current_pose"/>
   <arg name="twist_topic" default="/nav_sim/twist"/>
   <arg name="map_file_path" default="$(find nav_sim)/config/landmark_config.yaml"/>
 
@@ -19,7 +18,6 @@
     <param name="sigma_ww" value="$(arg sigma_ww)"/>
     <param name="frame_id" value="$(arg frame_id)"/>
     <param name="map_file_path" value="$(arg map_file_path)"/>
-    <remap from="~current_pose" to="$(arg current_pose_topic)"/>
     <remap from="~twist" to="$(arg twist_topic)"/>
   </node>
 

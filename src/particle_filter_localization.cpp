@@ -17,12 +17,11 @@ ParticleFilterLocalization::ParticleFilterLocalization()
 
   initialpose_subscriber_ =
     pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
-  pose_subscriber_ =
-    pnh_.subscribe("current_pose", 1, &ParticleFilterLocalization::poseCallback, this);
   twist_subscriber_ = pnh_.subscribe("twist", 1, &ParticleFilterLocalization::twistCallback, this);
-  observation_subscriber_ =
-    pnh_.subscribe("/nav_sim/observation", 1, &ParticleFilterLocalization::observationCallback, this);
+  observation_subscriber_ = pnh_.subscribe(
+    "/nav_sim/observation", 1, &ParticleFilterLocalization::observationCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
+  estimated_pose_publisher_ = pnh_.advertise<geometry_msgs::PoseStamped>("pose", 1);
 
   motion_noise_std_vec_(0) = sigma_vv_ * sigma_vv_;
   motion_noise_std_vec_(1) = sigma_vw_ * sigma_vw_;
@@ -60,38 +59,48 @@ void ParticleFilterLocalization::initialposeCallback(
 
 void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped & msg)
 {
-  twist_ = msg;
-}
-
-void ParticleFilterLocalization::poseCallback(const geometry_msgs::PoseStamped & msg)
-{
   const ros::Time current_stamp = ros::Time::now();
   const double dt = (current_stamp - latest_stamp_).toSec();
 
   // update particle pose
-  update(prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt);
+  particle_filter_ptr_->motionUpdate(
+    prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt, motion_noise_std_vec_);
+
+  // publish estimated pose from particles
+  geometry_msgs::PoseStamped estimated_pose;
+  estimated_pose.header.frame_id = frame_id_;
+  estimated_pose.header.stamp = ros::Time::now();
+  estimated_pose.pose = estimatedCurrentPose();
+  estimated_pose_publisher_.publish(estimated_pose);
 
   // publish particles for visualization
   publishParticles(current_stamp);
 
   latest_stamp_ = current_stamp;
-  prev_twist_ = twist_;
+  prev_twist_ = msg;
 }
 
 void ParticleFilterLocalization::observationCallback(const nav_sim::LandmarkInfoArray & msg)
 {
-  observationUpdate(msg);
+  if (msg.landmark_array.empty()) return;
+  particle_filter_ptr_->observationUpdate(msg, distance_rate_, direction_rate_);
+  particle_filter_ptr_->resampling();
 }
 
-void ParticleFilterLocalization::update(const double velocity, const double omega, const double dt)
+geometry_msgs::Pose ParticleFilterLocalization::estimatedCurrentPose()
 {
-  particle_filter_ptr_->motionUpdate(velocity, omega, dt, motion_noise_std_vec_);
-}
+  geometry_msgs::Pose result;
+  double highest_weight = 0.0;
 
-void ParticleFilterLocalization::observationUpdate(const nav_sim::LandmarkInfoArray observation)
-{
-  if(observation.landmark_array.empty()) return;
-  particle_filter_ptr_->observationUpdate(observation, distance_rate_, direction_rate_);
+  for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
+    const auto p = particle_filter_ptr_->getParticle(idx);
+    if(highest_weight < p.weight) {
+      highest_weight = p.weight;
+      result = utils::convertToPose(p.vec);
+    }
+  }
+
+  return result;
 }
 
 void ParticleFilterLocalization::publishParticles(const ros::Time stamp)
