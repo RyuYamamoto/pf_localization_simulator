@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard">
+		<remap from="cmd_vel" to="/velocity_smoother_node/raw_cmd_vel"/>
+	</node>
+
+	<node pkg="velocity_smoother" type="velocity_smoother_node" name="velocity_smoother_node">
+		<remap from="~filtered_cmd_vel" to="/cmd_vel"/>
+	</node>
+</launch>
