@@ -15,11 +15,10 @@ ParticleFilterLocalization::ParticleFilterLocalization()
 
   particle_filter_ptr_ = boost::make_shared<ParticleFilter>(particle_num_);
 
-  initialpose_subscriber_ =
-    pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
+  initialpose_subscriber_ = pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
   twist_subscriber_ = pnh_.subscribe("twist", 1, &ParticleFilterLocalization::twistCallback, this);
-  observation_subscriber_ = pnh_.subscribe(
-    "/nav_sim/observation", 1, &ParticleFilterLocalization::observationCallback, this);
+  observation_subscriber_ =
+    pnh_.subscribe("/nav_sim/observation", 1, &ParticleFilterLocalization::observationCallback, this);
   particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
   estimated_pose_publisher_ = pnh_.advertise<geometry_msgs::PoseStamped>("pose", 1);
 
@@ -51,13 +50,12 @@ void ParticleFilterLocalization::parseYaml(const std::string filename)
   particle_filter_ptr_->setMap(landmarks);
 }
 
-void ParticleFilterLocalization::initialposeCallback(
-  const geometry_msgs::PoseWithCovarianceStamped & msg)
+void ParticleFilterLocalization::initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
 {
   particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose.pose));
 }
 
-void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped & msg)
+void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped& msg)
 {
   const ros::Time current_stamp = ros::Time::now();
   const double dt = (current_stamp - latest_stamp_).toSec();
@@ -80,9 +78,10 @@ void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped
   prev_twist_ = msg;
 }
 
-void ParticleFilterLocalization::observationCallback(const nav_sim::LandmarkInfoArray & msg)
+void ParticleFilterLocalization::observationCallback(const nav_sim::LandmarkInfoArray& msg)
 {
-  if (msg.landmark_array.empty()) return;
+  if (msg.landmark_array.empty())
+    return;
   particle_filter_ptr_->observationUpdate(msg, distance_rate_, direction_rate_);
   particle_filter_ptr_->resampling();
 }
@@ -94,7 +93,7 @@ geometry_msgs::Pose ParticleFilterLocalization::estimatedCurrentPose()
 
   for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
     const auto p = particle_filter_ptr_->getParticle(idx);
-    if(highest_weight < p.weight) {
+    if (highest_weight < p.weight) {
       highest_weight = p.weight;
       result = utils::convertToPose(p.vec);
     }

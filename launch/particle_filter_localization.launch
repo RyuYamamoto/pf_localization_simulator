@@ -6,7 +6,7 @@
   <!-- mcl parameter -->
   <arg name="particle_num" default="100"/>
   <arg name="sigma_vv" default="0.19"/>
-  <arg name="sigma_vw" default="0.0"/>
+  <arg name="sigma_vw" default="0.001"/>
   <arg name="sigma_wv" default="0.13"/>
   <arg name="sigma_ww" default="0.2"/>
 
