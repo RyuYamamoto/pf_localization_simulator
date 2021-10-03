@@ -38,7 +38,7 @@ public:
     return particle_.at(idx);
   }
 
-  double normalize(const double radian)
+  inline double normalize(const double radian)
   {
     double normalize = std::fmod((radian + M_PI), 2 * M_PI) - M_PI;
     if (normalize < -M_PI)
@@ -149,7 +149,8 @@ public:
   void observationUpdate(
     const nav_sim::LandmarkInfoArray& observations, const double distance_rate, const double direction_rate)
   {
-    for (std::size_t idx = 0; idx < getParticleSize(); ++idx) {
+    std::size_t particle_num = getParticleSize();
+    for (std::size_t idx = 0; idx < particle_num; ++idx) {
       for (const auto observation : observations.landmark_array) {
         Eigen::VectorXd observation_pos(2);
         observation_pos << observation.length, observation.theta;
@@ -167,10 +168,9 @@ public:
 
         tf2::Transform particle_to_landmark = map_to_particle.inverse() * map_to_landmark;
 
-        const double diff_landmark_theta = std::atan2(
-                                             map_to_landmark.getOrigin().y() - map_to_particle.getOrigin().y(),
-                                             map_to_landmark.getOrigin().x() - map_to_particle.getOrigin().x()) -
-                                           particle_.at(idx).vec(2);
+        const double diff_landmark_x = map_to_landmark.getOrigin().x() - map_to_particle.getOrigin().x();
+        const double diff_landmark_y = map_to_landmark.getOrigin().y() - map_to_particle.getOrigin().y();
+        const double diff_landmark_theta = std::atan2(diff_landmark_y, diff_landmark_x) - particle_.at(idx).vec(2);
 
         const double landmark_direction = normalize(diff_landmark_theta);
         const double landmark_distance =
@@ -185,6 +185,8 @@ public:
         MultiVariateNormal multi_variate_normal(mean, covariance);
         particle_.at(idx).weight *= multi_variate_normal.pdf(observation_pos);
       }
+      // normalize particle weight
+      particle_.at(idx).weight /= particle_num;
     }
   }
 
