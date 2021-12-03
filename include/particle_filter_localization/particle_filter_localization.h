@@ -1,12 +1,12 @@
 #ifndef _PARTICLE_FILTER_LOCALIZATION_H_
 #define _PARTICLE_FILTER_LOCALIZATION_H_
 
-#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_sim_msgs/msg/landmark_info_array.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <random>
 
@@ -32,10 +32,10 @@ private:
   void parseYaml(const std::string filename);
 
 private:
-
   rclcpp::Time latest_stamp_;
 
-  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr initialpose_subscriber_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
+    initialpose_subscriber_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_subscriber_;
   rclcpp::Subscription<nav_sim_msgs::msg::LandmarkInfoArray>::SharedPtr observation_subscriber_;
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particle_publisher_;

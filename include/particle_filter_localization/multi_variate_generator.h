@@ -18,7 +18,7 @@ public:
     double a = (x - mean_).transpose() * covariance_.inverse() * (x - mean_);
     double b = std::sqrt(std::pow(std::sqrt(2 * M_PI), n) * covariance_.determinant());
 
-    return  std::exp(-0.5 * a) / b;
+    return std::exp(-0.5 * a) / b;
   }
   Eigen::VectorXd operator()() const
   {
@@ -26,7 +26,8 @@ public:
     static std::mt19937 engine(seed());
     static std::normal_distribution<> dist;
 
-    return mean_ + transform_ * Eigen::VectorXd{mean_.size()}.unaryExpr([&](auto x) { return dist(engine); });
+    return mean_ + transform_ *
+                     Eigen::VectorXd{mean_.size()}.unaryExpr([&](auto x) { return dist(engine); });
   }
   void setMean(const Eigen::VectorXd mean) { mean_ = mean; }
   void setCovariance(const Eigen::MatrixXd covariance) { covariance_ = covariance; }

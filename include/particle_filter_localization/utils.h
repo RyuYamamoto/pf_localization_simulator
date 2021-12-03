@@ -1,10 +1,10 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include <geometry_msgs/msg/pose.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <Eigen/Core>
+#include <geometry_msgs/msg/pose.hpp>
 
 namespace utils
 {
