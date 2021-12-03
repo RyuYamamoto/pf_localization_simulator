@@ -1,0 +1,27 @@
+<launch>
+  <arg name="frame_id" default="world"/>
+  <arg name="twist_topic" default="/nav_sim/twist"/>
+  <arg name="map_file_path" default="$(find-pkg-share nav_sim)/config/landmark_config.yaml"/>
+
+  <!-- mcl parameter -->
+  <arg name="particle_num" default="100"/>
+  <arg name="sigma_vv" default="0.19"/>
+  <arg name="sigma_vw" default="0.001"/>
+  <arg name="sigma_wv" default="0.13"/>
+  <arg name="sigma_ww" default="0.2"/>
+
+  <node pkg="particle_filter_localization" exec="particle_filter_localization_node" name="particle_filter_localization">
+    <param name="particle_num" value="$(var particle_num)"/>
+    <param name="sigma_vv" value="$(var sigma_vv)"/>
+    <param name="sigma_vw" value="$(var sigma_vw)"/>
+    <param name="sigma_wv" value="$(var sigma_wv)"/>
+    <param name="sigma_ww" value="$(var sigma_ww)"/>
+    <param name="frame_id" value="$(var frame_id)"/>
+    <param name="map_file_path" value="$(var map_file_path)"/>
+    <remap from="~/twist" to="$(var twist_topic)"/>
+  </node>
+
+  <include file="$(find-pkg-share nav_sim)/launch/nav_sim_bringup.launch.xml">
+    <arg name="rviz_config" value="$(find-pkg-share particle_filter_localization)/rviz/particle_filter_localization.rviz"/>
+  </include>
+</launch>

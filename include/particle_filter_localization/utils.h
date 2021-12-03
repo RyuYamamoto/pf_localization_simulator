@@ -1,21 +1,22 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include <geometry_msgs/Pose.h>
-#include <tf/tf.h>
+#include <geometry_msgs/msg/pose.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <Eigen/Core>
 
 namespace utils
 {
-Eigen::VectorXd convertToVector(const geometry_msgs::Pose pose)
+Eigen::VectorXd convertToVector(const geometry_msgs::msg::Pose pose)
 {
   Eigen::VectorXd vec(3);
 
   vec(0) = pose.position.x;
   vec(1) = pose.position.y;
 
-  tf::Quaternion q(pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
-  tf::Matrix3x3 m(q);
+  tf2::Quaternion q(pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
+  tf2::Matrix3x3 m(q);
   double r, p, y;
   m.getRPY(r, p, y);
   vec(2) = y;
@@ -23,13 +24,13 @@ Eigen::VectorXd convertToVector(const geometry_msgs::Pose pose)
   return vec;
 }
 
-geometry_msgs::Pose convertToPose(const Eigen::VectorXd vec)
+geometry_msgs::msg::Pose convertToPose(const Eigen::VectorXd vec)
 {
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   pose.position.x = vec(0);
   pose.position.y = vec(1);
   pose.position.z = 0.0;
-  tf::Quaternion quat;
+  tf2::Quaternion quat;
   quat.setRPY(0.0, 0.0, vec(2));
   pose.orientation.x = quat.x();
   pose.orientation.y = quat.y();

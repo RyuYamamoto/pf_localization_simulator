@@ -2,8 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "particle_filter_localization_node");
-  ParticleFilterLocalization particle_filter_localization;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<ParticleFilterLocalization>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
   return 0;
 }

@@ -1,26 +1,32 @@
 #include <particle_filter_localization/particle_filter_localization.h>
 #include <particle_filter_localization/utils.h>
 
-ParticleFilterLocalization::ParticleFilterLocalization()
+ParticleFilterLocalization::ParticleFilterLocalization() : Node("particle_filter_localization")
 {
-  pnh_.param<int>("particle_num", particle_num_, 100);
-  pnh_.param<std::string>("frame_id", frame_id_, "map");
-  pnh_.param<std::string>("map_file_path", map_file_path_, "");
-  pnh_.param<double>("sigma_vv", sigma_vv_, 0.01);
-  pnh_.param<double>("sigma_vw", sigma_vw_, 0.02);
-  pnh_.param<double>("sigma_wv", sigma_wv_, 0.03);
-  pnh_.param<double>("sigma_ww", sigma_ww_, 0.04);
-  pnh_.param<double>("distance_rate", distance_rate_, 0.14);
-  pnh_.param<double>("direction_rate", direction_rate_, 0.05);
+  particle_num_ = this->declare_parameter("particle_num", 100);
+  frame_id_ = this->declare_parameter("frame_id", "map");
+  map_file_path_ = this->declare_parameter("map_file_path", "");
+  sigma_vv_ = this->declare_parameter("sigma_vv", 0.01);
+  sigma_vw_ = this->declare_parameter("sigma_vw", 0.02);
+  sigma_wv_ = this->declare_parameter("sigma_wv", 0.03);
+  sigma_ww_ = this->declare_parameter("sigma_ww", 0.04);
+  distance_rate_ = this->declare_parameter("distance_rate", 0.14);
+  direction_rate_ = this->declare_parameter("direction_rate", 0.05);
 
-  particle_filter_ptr_ = boost::make_shared<ParticleFilter>(particle_num_);
+  particle_filter_ptr_ = std::make_shared<ParticleFilter>(particle_num_);
 
-  initialpose_subscriber_ = pnh_.subscribe("/initialpose", 1, &ParticleFilterLocalization::initialposeCallback, this);
-  twist_subscriber_ = pnh_.subscribe("twist", 1, &ParticleFilterLocalization::twistCallback, this);
-  observation_subscriber_ =
-    pnh_.subscribe("/nav_sim/observation", 1, &ParticleFilterLocalization::observationCallback, this);
-  particle_publisher_ = pnh_.advertise<geometry_msgs::PoseArray>("particle", 1);
-  estimated_pose_publisher_ = pnh_.advertise<geometry_msgs::PoseStamped>("pose", 1);
+  initialpose_subscriber_ =
+    this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "/initialpose", 1,
+      std::bind(&ParticleFilterLocalization::initialposeCallback, this, std::placeholders::_1));
+  twist_subscriber_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+    "twist", 1, std::bind(&ParticleFilterLocalization::twistCallback, this, std::placeholders::_1));
+  observation_subscriber_ = this->create_subscription<nav_sim_msgs::msg::LandmarkInfoArray>(
+    "/nav_sim/observation", 11,
+    std::bind(&ParticleFilterLocalization::observationCallback, this, std::placeholders::_1));
+
+  particle_publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>("particle", 1);
+  estimated_pose_publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", 1);
 
   motion_noise_std_vec_(0) = sigma_vv_ * sigma_vv_;
   motion_noise_std_vec_(1) = sigma_vw_ * sigma_vw_;
@@ -32,7 +38,7 @@ ParticleFilterLocalization::ParticleFilterLocalization()
 
   parseYaml(map_file_path_);
 
-  latest_stamp_ = ros::Time::now();
+  latest_stamp_ = rclcpp::Clock().now();
 }
 
 void ParticleFilterLocalization::parseYaml(const std::string filename)
@@ -50,26 +56,27 @@ void ParticleFilterLocalization::parseYaml(const std::string filename)
   particle_filter_ptr_->setMap(landmarks);
 }
 
-void ParticleFilterLocalization::initialposeCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
+void ParticleFilterLocalization::initialposeCallback(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
   particle_filter_ptr_->initParticles(utils::convertToVector(msg.pose.pose));
 }
 
-void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped& msg)
+void ParticleFilterLocalization::twistCallback(const geometry_msgs::msg::TwistStamped & msg)
 {
-  const ros::Time current_stamp = ros::Time::now();
-  const double dt = (current_stamp - latest_stamp_).toSec();
+  const rclcpp::Time current_stamp = rclcpp::Clock().now();
+  const double dt = (current_stamp - latest_stamp_).seconds();
 
   // update particle pose
   particle_filter_ptr_->motionUpdate(
     prev_twist_.twist.linear.x, prev_twist_.twist.angular.z, dt, motion_noise_std_vec_);
 
   // publish estimated pose from particles
-  geometry_msgs::PoseStamped estimated_pose;
+  geometry_msgs::msg::PoseStamped estimated_pose;
   estimated_pose.header.frame_id = frame_id_;
-  estimated_pose.header.stamp = ros::Time::now();
+  estimated_pose.header.stamp = rclcpp::Clock().now();
   estimated_pose.pose = estimatedCurrentPose();
-  estimated_pose_publisher_.publish(estimated_pose);
+  estimated_pose_publisher_->publish(estimated_pose);
 
   // publish particles for visualization
   publishParticles(current_stamp);
@@ -78,17 +85,17 @@ void ParticleFilterLocalization::twistCallback(const geometry_msgs::TwistStamped
   prev_twist_ = msg;
 }
 
-void ParticleFilterLocalization::observationCallback(const nav_sim::LandmarkInfoArray& msg)
+void ParticleFilterLocalization::observationCallback(
+  const nav_sim_msgs::msg::LandmarkInfoArray & msg)
 {
-  if (msg.landmark_array.empty())
-    return;
+  if (msg.landmark_array.empty()) return;
   particle_filter_ptr_->observationUpdate(msg, distance_rate_, direction_rate_);
   particle_filter_ptr_->resampling();
 }
 
-geometry_msgs::Pose ParticleFilterLocalization::estimatedCurrentPose()
+geometry_msgs::msg::Pose ParticleFilterLocalization::estimatedCurrentPose()
 {
-  geometry_msgs::Pose result;
+  geometry_msgs::msg::Pose result;
   double highest_weight = 0.0;
 
   for (std::size_t idx = 0; idx < particle_filter_ptr_->getParticleSize(); ++idx) {
@@ -102,9 +109,9 @@ geometry_msgs::Pose ParticleFilterLocalization::estimatedCurrentPose()
   return result;
 }
 
-void ParticleFilterLocalization::publishParticles(const ros::Time stamp)
+void ParticleFilterLocalization::publishParticles(const rclcpp::Time stamp)
 {
-  geometry_msgs::PoseArray particle_array;
+  geometry_msgs::msg::PoseArray particle_array;
 
   particle_array.header.stamp = stamp;
   particle_array.header.frame_id = frame_id_;
@@ -115,5 +122,5 @@ void ParticleFilterLocalization::publishParticles(const ros::Time stamp)
     particle_array.poses.push_back(utils::convertToPose(particle.vec));
   }
 
-  particle_publisher_.publish(particle_array);
+  particle_publisher_->publish(particle_array);
 }

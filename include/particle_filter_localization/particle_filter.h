@@ -3,14 +3,14 @@
 
 #include <random>
 
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_broadcaster.h>
 
-#include <nav_sim/LandmarkInfoArray.h>
+#include <nav_sim_msgs/msg/landmark_info_array.hpp>
 
 #include <particle_filter_localization/multi_variate_generator.h>
 
@@ -147,7 +147,7 @@ public:
 
   // TODO refactor
   void observationUpdate(
-    const nav_sim::LandmarkInfoArray& observations, const double distance_rate, const double direction_rate)
+    const nav_sim_msgs::msg::LandmarkInfoArray& observations, const double distance_rate, const double direction_rate)
   {
     std::size_t particle_num = getParticleSize();
     for (std::size_t idx = 0; idx < particle_num; ++idx) {
