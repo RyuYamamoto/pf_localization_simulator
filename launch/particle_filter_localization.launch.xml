@@ -10,7 +10,7 @@
   <arg name="sigma_wv" default="0.13"/>
   <arg name="sigma_ww" default="0.2"/>
 
-  <node pkg="particle_filter_localization" exec="particle_filter_localization_node" name="particle_filter_localization">
+  <node pkg="particle_filter_localization" exec="particle_filter_localization_node" name="particle_filter_localization" output="screen">
     <param name="particle_num" value="$(var particle_num)"/>
     <param name="sigma_vv" value="$(var sigma_vv)"/>
     <param name="sigma_vw" value="$(var sigma_vw)"/>

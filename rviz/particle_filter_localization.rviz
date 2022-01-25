@@ -3,9 +3,7 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /TF1
-        - /particle1
+      Expanded: ~
       Splitter Ratio: 0.5
     Tree Height: 1079
   - Class: rviz_common/Selection
@@ -71,11 +69,11 @@ Visualization Manager:
           Value: true
         3:
           Value: true
-        All Enabled: true
+        All Enabled: false
         base_link:
           Value: true
         ground_truth:
-          Value: true
+          Value: false
         map:
           Value: true
         world:
@@ -120,7 +118,7 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: true
-      Enabled: true
+      Enabled: false
       Keep: 100
       Name: Odometry
       Position Tolerance: 0.10000000149011612
@@ -141,13 +139,13 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /odom
-      Value: true
+      Value: false
     - Alpha: 1
       Axes Length: 1
       Axes Radius: 0.10000000149011612
       Class: rviz_default_plugins/Pose
       Color: 252; 233; 79
-      Enabled: true
+      Enabled: false
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
       Name: Ground Truth
@@ -161,7 +159,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /ground_truth
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
@@ -256,7 +254,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 1.862645149230957e-08
+      Angle: -0.01499998103827238
       Class: rviz_default_plugins/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -266,11 +264,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 182.2932891845703
+      Scale: 96.20198059082031
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz_default_plugins)
-      X: 0
-      Y: 0
+      X: -0.3986727297306061
+      Y: 0.2885015606880188
     Saved: ~
 Window Geometry:
   Displays:

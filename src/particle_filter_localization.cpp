@@ -22,7 +22,7 @@ ParticleFilterLocalization::ParticleFilterLocalization() : Node("particle_filter
   twist_subscriber_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "twist", 1, std::bind(&ParticleFilterLocalization::twistCallback, this, std::placeholders::_1));
   observation_subscriber_ = this->create_subscription<nav_sim_msgs::msg::LandmarkInfoArray>(
-    "/nav_sim/observation", 11,
+    "observation", 11,
     std::bind(&ParticleFilterLocalization::observationCallback, this, std::placeholders::_1));
 
   particle_publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>("particle", 1);
@@ -89,6 +89,7 @@ void ParticleFilterLocalization::observationCallback(
   const nav_sim_msgs::msg::LandmarkInfoArray & msg)
 {
   if (msg.landmark_array.empty()) return;
+  RCLCPP_INFO(get_logger(), "callback observation");
   particle_filter_ptr_->observationUpdate(msg, distance_rate_, direction_rate_);
   particle_filter_ptr_->resampling();
 }
